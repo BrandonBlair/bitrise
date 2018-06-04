@@ -11,6 +11,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "requests>=2.18.4",
-        "slimpoint>=1.0.0"
+        "slimpoint>=1.0.0",
+        "certifi"
         ]
 )
