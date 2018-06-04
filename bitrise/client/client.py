@@ -3,6 +3,7 @@ import os
 from requests import Session
 
 from bitrise.services import Bitrise
+from bitrise.services.apps import BitriseApp
 
 
 class BitriseClient(object):
@@ -33,7 +34,8 @@ class BitriseClient(object):
     @property
     def apps(self):
         resp_json = self.bitrise.apps.get(session=self.session).json()
-        return resp_json['data']
+        app = BitriseApp(**resp_json)
+        return app
 
     def _add_auth_header(self):
         auth_header = {'Authorization': f'token {self.auth_token}'}
