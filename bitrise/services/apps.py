@@ -31,7 +31,7 @@ class BitriseApp(BitrisePayload):
     def builds(self):
         """Builds associated with a particular app"""
         builds_ep = BuildsEndpoint(self.slug_url)
-        builds_json = builds_ep.get(session=self.session, qs_args={'limit': 50}).json()
+        builds_json = builds_ep.get(session=self.session, qs_args={'limit': 10}).json()
         available_builds = [
             BitriseBuild(
                 self.session,
