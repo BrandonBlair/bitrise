@@ -11,6 +11,7 @@ test_token = 'unimportant'
 success_status = 200
 test_app_slug = 'appslug'
 test_build_slug = 'buildslug'
+test_build_details_slug = 'buiolddetailsslug'
 
 
 def test_bitrise_services():
@@ -18,9 +19,9 @@ def test_bitrise_services():
 
     # Apps
     apps_payload = [
-        {'title': 'app1'},
-        {'title': 'app2'},
-        {'title': 'app3'}
+        {'slug': 'app1'},
+        {'slug': 'app2'},
+        {'slug': 'app3'}
     ]
 
     apps_json = {
@@ -30,7 +31,7 @@ def test_bitrise_services():
         get_resp.add(GET, url=client.bitrise.apps.url, status=success_status, json=apps_json)
 
         app_list = client.apps
-        assert app_list[0].data['title'] == apps_payload[0]['title']
+        assert app_list[0].data['slug'] == apps_payload[0]['slug']
 
     # Builds
     sessn = Session()
@@ -39,9 +40,9 @@ def test_bitrise_services():
     app = BitriseApp(sessn, apps_url, {'slug': test_app_slug})
 
     builds_payload = [
-        {'title': 'build1'},
-        {'title': 'build2'},
-        {'title': 'build3'}
+        {'slug': 'build1', 'triggered_at': '2018-03-28T09:24:49Z'},
+        {'slug': 'build2', 'triggered_at': '2018-04-28T09:24:49Z'},  # Latest build
+        {'slug': 'build3', 'triggered_at': '2018-01-28T09:24:49Z'}
     ]
 
     builds_json = {
@@ -53,18 +54,20 @@ def test_bitrise_services():
 
         builds = app.builds
 
-        assert builds[0].data['title'] == builds_payload[0]['title']
+        # Get build by slug
+        assert app.get_build_by_slug('build1').triggered_at == '2018-03-28T09:24:49Z'
+
+        # Get latest build
+        assert app.latest_build.slug == 'build2'
+
+        # Validate build contents
+        assert builds[0].data['slug'] == builds_payload[0]['slug']
 
     # Build Details
     builds_url = f"{apps_url}/{test_app_slug}/builds"
-    print("Builds url: ", builds_url)
     build = BitriseBuild(sessn, builds_url, {'slug': test_build_slug})
 
-    build_details_payload = [
-        {'title': 'detail1'},
-        {'title': 'detail2'},
-        {'title': 'detail3'}
-    ]
+    build_details_payload = {'slug': 'detail1'}
 
     build_details_json = {
         'data': build_details_payload
@@ -79,4 +82,24 @@ def test_bitrise_services():
 
         details = build.details
 
-        assert details[0].data == build_details_payload[0]
+        assert details.data == build_details_payload
+
+    # Artifacts
+    artifacts_url = f"{builds_url}/{test_build_slug}/artifacts"
+
+    artifacts_payload = [
+        {'slug': 'artifact1'},
+        {'slug': 'artifact2'},
+        {'slug': 'artifact3'}
+    ]
+
+    artifacts_json = {
+        'data': artifacts_payload
+    }
+
+    with RequestsMock() as get_resp:
+        get_resp.add(GET, url=artifacts_url, status=success_status, json=artifacts_json)
+
+        artifacts = details.artifacts
+
+        assert artifacts[0].data['slug'] == artifacts_payload[0]['slug']

@@ -1,0 +1,2 @@
+class BitriseException(Exception):
+    pass
