@@ -12,4 +12,8 @@ for app in client.apps:
                 f"Filename: {file.title}\n"
                 f"Size in bytes: {file.file_size_bytes}"
             )
+
+print(f"Access fields as attributes on each object, e.g. this app's name is {app.title}")
+
+print(f"Or just access the raw JSON from Bitrise. This app's JSON: {app.data}")
 ```
