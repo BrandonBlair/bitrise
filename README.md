@@ -6,14 +6,15 @@ client = BitriseClient(api_token=test_token)  # Can also set BITRISE_TOKEN envir
 
 for app in client.apps:
     for build in app.builds:
-        for file in build.details.artifacts:
-            print(
-                "---------------------------------------"
-                f"Filename: {file.title}\n"
-                f"Size in bytes: {file.file_size_bytes}"
-            )
+        print(
+            f"-----------  App: {app.title}  ------------\n"
+            f"build {build.slug}\n"
+            f"Triggered: {build.triggered_at}\n\n"
 
-print(f"Access fields as attributes on each object, e.g. this app's name is {app.title}")
+            "Artifacts:\n"
+            f"{', '.join([file.title for file in build.details.artifacts])}"
+            "\n"
+        )
 
-print(f"Or just access the raw JSON from Bitrise. This app's JSON: {app.data}")
+print(f"You can still access the raw JSON from Bitrise. This app's JSON: {app.data}")
 ```
