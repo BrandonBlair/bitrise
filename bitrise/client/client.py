@@ -33,8 +33,11 @@ class BitriseClient(object):
 
     @property
     def apps(self):
+        apps_url = self.bitrise.apps.url
         apps_data = self.bitrise.apps.get(session=self.session).json()
-        bitrise_apps = [BitriseApp(app) for app in apps_data['data']]
+        bitrise_apps = [
+            BitriseApp(self.session, apps_url, app) for app in apps_data['data']
+        ]
         return bitrise_apps
 
     def _add_auth_header(self):

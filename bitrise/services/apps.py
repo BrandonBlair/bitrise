@@ -1,8 +1,11 @@
 from slimpoint.service import Endpoint
 
+from bitrise.services.bitrise_payload import BitrisePayload
+from bitrise.services.builds import BuildsEndpoint, BitriseBuild
 
-class BitriseApp(object):
-    def __init__(self, app_data):
+
+class BitriseApp(BitrisePayload):
+    def __init__(self, session, apps_url, app_data):
         """Represents a Bitrise App as depicted via JSON from Bitrise
 
         Args:
@@ -25,14 +28,25 @@ class BitriseApp(object):
                 slug (str): Unique ID of owner
         """
 
-        self.data = app_data
-
-        for attr in app_data:
-            setattr(self, attr, app_data[attr])
+        super().__init__(app_data)
+        self.apps_url = apps_url
+        self.session = session
 
     @property
-    def json(self):
-        return self.data
+    def builds(self):
+        """Builds associated with a particular app"""
+        slug_url = f"{self.apps_url}/{self.slug}"
+        builds_ep = BuildsEndpoint(slug_url)
+
+        builds_json = builds_ep.get(session=self.session, qs_args={'limit': 10}).json()
+        available_builds = [
+            BitriseBuild(
+                self.session,
+                builds_ep.url,
+                build_data
+            ) for build_data in builds_json['data']
+        ]
+        return available_builds
 
 
 class AppsEndpoint(Endpoint):

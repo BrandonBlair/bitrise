@@ -1,1 +1,1 @@
-from .bitrise import Bitrise  # noqa
+from .bitrise import Bitrise # noqa
