@@ -93,15 +93,38 @@ class BitriseBuild(BitrisePayload):
     """Represents a Bitrise build as depicted via JSON from Bitrise
 
     Build data contents:
-        status (int): Filter by build status
-        branch (str): Retrieve builds from a certain branch
-        trigger_event_type (str): push or pull-request
-        pull_request_id (int): PR ID (trigger_event_type must be pull-request)
-        after (int): Builds triggered after a certain time (UNIX timestamp)
-        before (int): Builds triggered before a certain time (UNIX timestamp)
-        workflow (str): Builds triggered with a specific workflow
-        commit_message (str): Builds containing commit message (partial-matches too)
-        build_number (str): Builds with specific build number
+        triggered_at (str): Timestamp when build was triggered, e.g. 2018-06-11T11:00:45Z
+        started_on_worker_at (str): When build started on worker
+        environment_prepare_finished_at (str): When build environment completed preparation
+        finished_at (str): When build finished
+        slug (str): Unique identifier for build, e.g. c1969235a56e1c17
+        status (int): Current status of build
+            0: Not finished yet
+                If is_on_hold = true: the build did not start yet (status_text=on-hold)
+                If is_on_hold = false: the build is running (status_text=in-progress)
+            1: Build finished, with success (status_text=success)
+            2: Build finished, with error (status_text=error)
+            3: Build was aborted
+        status_text: Additional details regarding status, e.g. 'error'
+        abort_reason (str): Reason build was aborted, if applicable
+        is_on_hold (bool): Whether build is on hold
+        branch (str): Git branch, e.g. publisher/develop
+        build_number (int): Bitrise build number
+        commit_hash (str): Git commit hash
+        commit_message (str): Git commit message
+        tag (str): Git tag
+        triggered_workflow (str): Workflow under which build was triggered
+        triggered_by (str): User/process that triggered build
+        stack_config_type (str): Configuration type for build stack, e.g. 'standard1'
+        stack_identifier (str): ID of build stack, e.g. 'osx-xcode-9.1.x'
+        original_build_params (dict): e.g. {
+            branch: publisher/develop
+            workflow_id: test
+        }
+        pull_request_id (int): PR request ID if provided
+        pull_request_target_branch (str): PR target branch
+        pull_request_view_url (str): URL to PR
+        commit_view_url: URL to commit
     """
 
     @property

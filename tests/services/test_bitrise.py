@@ -8,7 +8,7 @@ from bitrise.services.builds import BitriseBuild
 
 
 test_token = 'unimportant'
-success_status = 200
+ok_status = 200
 test_app_slug = 'appslug'
 test_build_slug = 'buildslug'
 test_build_details_slug = 'buiolddetailsslug'
@@ -28,7 +28,7 @@ def test_bitrise_services():
         'data': apps_payload
     }
     with RequestsMock() as get_resp:
-        get_resp.add(GET, url=client.bitrise.apps.url, status=success_status, json=apps_json)
+        get_resp.add(GET, url=client.bitrise.apps.url, status=ok_status, json=apps_json)
 
         app_list = client.apps
         assert app_list[0].data['slug'] == apps_payload[0]['slug']
@@ -40,66 +40,47 @@ def test_bitrise_services():
     app = BitriseApp(sessn, apps_url, {'slug': test_app_slug})
 
     builds_payload = [
-        {'slug': 'build1', 'triggered_at': '2018-03-28T09:24:49Z'},
+        {'slug': 'build1', 'triggered_at': '2018-05-28T09:24:49Z'},
         {'slug': 'build2', 'triggered_at': '2018-04-28T09:24:49Z'},  # Latest build
         {'slug': 'build3', 'triggered_at': '2018-01-28T09:24:49Z'}
     ]
 
-    builds_json = {
-        'data': builds_payload
-    }
+    # Get build by slug
     with RequestsMock() as get_resp:
-        builds_url = f"{slug_url}/builds?limit=10"
-        get_resp.add(GET, url=builds_url, status=success_status, json=builds_json)
+        builds_url = f"{slug_url}/builds?limit=50"
+        get_resp.add(GET, url=builds_url, status=ok_status, json={'data': builds_payload})
+        assert app.get_build_by_slug('build2').triggered_at == '2018-04-28T09:24:49Z'
 
-        builds = app.builds
-
-        # Get build by slug
-        assert app.get_build_by_slug('build1').triggered_at == '2018-03-28T09:24:49Z'
-
-        # Get latest build
-        assert app.latest_build.slug == 'build2'
-
-        # Validate build contents
-        assert builds[0].data['slug'] == builds_payload[0]['slug']
+    # Get latest build
+    with RequestsMock() as get_resp:
+        latest_build_payload = [
+            {'slug': 'build1', 'triggered_at': '2018-05-28T09:24:49Z'},
+        ]
+        builds_url = f"{slug_url}/builds"
+        limited_url = f"{builds_url}?limit=1"
+        get_resp.add(GET, url=limited_url, status=ok_status, json={'data': latest_build_payload})
+        assert app.get_last_build().slug == 'build1'
 
     # Build Details
-    builds_url = f"{apps_url}/{test_app_slug}/builds"
-    build = BitriseBuild(sessn, builds_url, {'slug': test_build_slug})
-
-    build_details_payload = {'slug': 'detail1'}
-
-    build_details_json = {
-        'data': build_details_payload
-    }
     with RequestsMock() as get_resp:
-        get_resp.add(
-            GET,
-            url=f"{builds_url}/{test_build_slug}",
-            status=success_status,
-            json=build_details_json
-        )
+        build_detail_url = f"{apps_url}/{test_app_slug}/builds/{test_build_slug}"
+        build_details_payload = {'slug': 'detail1'}
+        payld = {'data': build_details_payload}
+        get_resp.add(GET, url=build_detail_url, status=ok_status, json=payld)
 
+        build = BitriseBuild(sessn, builds_url, {'slug': test_build_slug})
         details = build.details
-
         assert details.data == build_details_payload
 
     # Artifacts
-    artifacts_url = f"{builds_url}/{test_build_slug}/artifacts"
-
-    artifacts_payload = [
-        {'slug': 'artifact1'},
-        {'slug': 'artifact2'},
-        {'slug': 'artifact3'}
-    ]
-
-    artifacts_json = {
-        'data': artifacts_payload
-    }
-
     with RequestsMock() as get_resp:
-        get_resp.add(GET, url=artifacts_url, status=success_status, json=artifacts_json)
+        artifacts_payload = [
+            {'slug': 'artifact1'},
+            {'slug': 'artifact2'},
+            {'slug': 'artifact3'}
+        ]
+        artifacts_url = f"{build_detail_url}/artifacts"
+        get_resp.add(GET, url=artifacts_url, status=ok_status, json={'data': artifacts_payload})
 
         artifacts = details.artifacts
-
         assert artifacts[0].data['slug'] == artifacts_payload[0]['slug']

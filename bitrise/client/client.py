@@ -4,6 +4,7 @@ from requests import Session
 
 from bitrise.services import Bitrise
 from bitrise.services.apps import BitriseApp
+from bitrise.exceptions import BitriseException
 
 
 class BitriseClient(object):
@@ -39,6 +40,13 @@ class BitriseClient(object):
             BitriseApp(self.session, apps_url, app) for app in apps_data['data']
         ]
         return bitrise_apps
+
+    def get_app_by_name(self, app_name):
+        app_name = app_name.lower()
+        matching_apps = [app for app in self.apps if app.title.lower() == app_name]
+        if len(matching_apps) != 1:
+            raise BitriseException(f'Expected 1 app with title {app_name}, found {matching_apps}')
+        return matching_apps[0]
 
     def _add_auth_header(self):
         auth_header = {'Authorization': f'token {self.auth_token}'}
