@@ -41,6 +41,10 @@ class BitriseArtifact(BitrisePayload):
         )
         return download_info_
 
+    @property
+    def download_url(self):
+        return self.download_info.expiring_download_url
+
 
 class BitriseBuildDetails(BitrisePayload):
     """Represents Bitrise build details as depicted via JSON from Bitrise
