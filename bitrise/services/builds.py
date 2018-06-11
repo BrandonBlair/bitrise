@@ -1,6 +1,7 @@
 from slimpoint.service import Endpoint
 
 from bitrise.services.bitrise_payload import BitrisePayload
+from bitrise.exceptions import BitriseException
 
 
 class BitriseArtifactDownload(BitrisePayload):
@@ -130,6 +131,7 @@ class BitriseBuild(BitrisePayload):
     @property
     def details(self):
         """Details associated with a particular build"""
+
         build_details_ep = BuildDetailsEndpoint(self.slug_url)
         build_details_json = build_details_ep.get(session=self.session).json()
         details_ = BitriseBuildDetails(
@@ -138,6 +140,23 @@ class BitriseBuild(BitrisePayload):
             build_details_json['data']
         )
         return details_
+
+    @property
+    def artifacts(self):
+        """Convenience function to expose artifacts at the build level"""
+
+        return self.details.artifacts
+
+    def get_artifact_by_name(self, name):
+        """Retrieve a specific artifact by filename"""
+
+        name = name.lower()
+        matching_artifacts = [artifact for artifact in self.artifacts if artifact.title == name]
+
+        if len(matching_artifacts) != 1:
+            raise BitriseException(f'Expected 1 artifact named {name}, found {matching_artifacts}')
+
+        return matching_artifacts[0]
 
 
 class BuildsEndpoint(Endpoint):
