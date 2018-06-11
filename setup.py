@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bitrise',
-    version='1.0.0',
+    version='1.0.1',
     description='Python bindings for Bitrise REST API',
     author='Brandon Blair',
     author_email='cbrandon.blair@gmail.com',
