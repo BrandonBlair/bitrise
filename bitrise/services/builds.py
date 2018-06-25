@@ -154,7 +154,6 @@ class BitriseBuild(BitrisePayload):
     def get_artifact_by_name(self, name):
         """Retrieve a specific artifact by filename"""
 
-        name = name.lower()
         matching_artifacts = [artifact for artifact in self.artifacts if artifact.title == name]
 
         if len(matching_artifacts) != 1:
