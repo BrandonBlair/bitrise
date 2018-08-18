@@ -67,6 +67,27 @@ class BitriseApp(BitrisePayload):
         ]
         return available_builds
 
+    def build(self, build_params):
+        """Trigger a new build
+
+        Args:
+            build_params (dict): Retrieves build params
+                See https://devcenter.bitrise.io/api/build-trigger/#build-params
+        """
+        builds_ep = BuildsEndpoint(self.slug_url)
+        build_json = builds_ep.post(session=self.session, expect=201, json={
+            "hook_info": {
+                "type": "bitrise"
+            },
+            "build_params": build_params
+        }).json()
+        build = BitriseBuild(
+            self.session,
+            builds_ep.url,
+            build_json
+        )
+        return build
+
     @property
     def completed_builds(self):
         completed = self.get_builds(status=1)
