@@ -1,7 +1,10 @@
 # bitrise
+
+![](https://img.shields.io/pypi/v/bitrise.svg)
+
 Python bindings for Bitrise API
 
-```
+```python
 client = BitriseClient(api_token=test_token)  # Can also set BITRISE_TOKEN environment variable
 
 for app in client.apps:
