@@ -47,7 +47,7 @@ class BitriseApp(BitrisePayload):
             pull_request_id (int): PR ID (trigger_event_type must be pull-request)
             after (int): Builds triggered after a certain time (UNIX timestamp)
             before (int): Builds triggered before a certain time (UNIX timestamp)
-            workflow_id (str): Builds triggered with a specific workflow
+            workflow (str): Builds triggered with a specific workflow
             commit_message (str): Builds containing commit message (partial-matches too)
             build_number (str): Builds with specific build number
         """
